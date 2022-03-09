@@ -1,44 +1,50 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const date = require(__dirname + '/date.js');
+// console.log(date());
 const app = express();
-
+let items = ["one", "two"];
+let workItems = [];
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
+
 app.get("/", function(req, res) {
-  var today = new Date();
-  var currentDay = today.getDay();
-  var day = "";
-  switch (currentDay) {
-    case 0:
-      day = "Sunday";
-      break;
-    case 1:
-      day = "Monday";
-      break;
-    case 2:
-      day = "Tueday";
-      break;
-    case 3:
-      day = "Wednesday";
-      break;
-    case 4:
-      day = "Thursday";
-      break;
-    case 5:
-      day = "Friday";
-      break;
-    case 6:
-      day = "Saturday";
-      break;
-    default:
-    console.log("Error: currentDay is equal to: " + currentDay);
-  }
-  res.render("list", {
-    kday: day
-  });
+
+let day = date.getDate();
+      res.render("list", {
+        listTitle: day,
+        newListItems: items
+      });
+
+    });
+
+app.get("/work", function(req, res){
+  res.render("list",{
+    listTitle: "Work list",
+    newListItems: workItems
+  })
+})
+
+    app.post("/", function(req, res) {
+      let item = req.body.newItem;
+      if (req.body.list === "Work"){
+        workItems.push(item);
+        res.redirect("/work");
+      }
+      else{
+
+
+      items.push(item);
+      res.redirect("/");
+    }
+
+    });
+app.get("/about", function(req, res){
+  res.render("about");
 });
 
-app.listen(3000, function() {
-  console.log("Server is running on port 3000");
-})
+    app.listen(3000, function() {
+      console.log("Server is running on port 3000");
+    })
